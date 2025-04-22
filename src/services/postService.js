@@ -1,7 +1,7 @@
 import Post from '../schema/post.js';
 import User from '../schema/user.js';
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
-import s3Client from '../config/s3.js';
+import s3Client from '../config/awsConfig.js';
 
 // Create a new post
 const createPost = async (userId, postData, files) => {
@@ -379,4 +379,4 @@ export {
   bookmarkPost,
   unbookmarkPost,
   getBookmarkedPosts,
-}; 
+};

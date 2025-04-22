@@ -3,17 +3,17 @@ import { check } from 'express-validator';
 import { protect } from '../middleware/auth.js';
 import upload from '../middleware/upload.js';
 import {
-  createPost,
-  getFeedPosts,
-  getExplorePosts,
-  getPostById,
-  updatePost,
-  deletePost,
-  likePost,
-  unlikePost,
-  bookmarkPost,
-  unbookmarkPost,
-  getBookmarkedPosts,
+  createPostController,
+  getFeedPostsController,
+  getExplorePostsController,
+  getPostByIdController,
+  updatePostController,
+  deletePostController,
+  likePostController,
+  unlikePostController,
+  bookmarkPostController,
+  unbookmarkPostController,
+  getBookmarkedPostsController,
 } from '../controllers/postController.js';
 
 const router = express.Router();
@@ -24,20 +24,20 @@ router.post(
   protect,
   upload.array('media', 5), // Max 5 files
   [check('text', 'Text is required').notEmpty()],
-  createPost
+  createPostController
 );
 
 // Get feed posts (from people user follows)
-router.get('/feed', protect, getFeedPosts);
+router.get('/feed', protect, getFeedPostsController);
 
 // Get explore posts (all posts for discovery)
-router.get('/explore', protect, getExplorePosts);
+router.get('/explore', protect, getExplorePostsController);
 
 // Get bookmarked posts
-router.get('/bookmarks', protect, getBookmarkedPosts);
+router.get('/bookmarks', protect, getBookmarkedPostsController);
 
 // Get post by id
-router.get('/:id', protect, getPostById);
+router.get('/:id', protect, getPostByIdController);
 
 // Update post
 router.put(
@@ -45,22 +45,22 @@ router.put(
   protect,
   upload.array('media', 5),
   [check('text', 'Text is required').notEmpty()],
-  updatePost
+  updatePostController
 );
 
 // Delete post
-router.delete('/:id', protect, deletePost);
+router.delete('/:id', protect, deletePostController);
 
 // Like a post
-router.put('/:id/like', protect, likePost);
+router.put('/:id/like', protect, likePostController);
 
 // Unlike a post
-router.put('/:id/unlike', protect, unlikePost);
+router.put('/:id/unlike', protect, unlikePostController);
 
 // Bookmark a post
-router.put('/:id/bookmark', protect, bookmarkPost);
+router.put('/:id/bookmark', protect, bookmarkPostController);
 
 // Remove bookmark
-router.put('/:id/unbookmark', protect, unbookmarkPost);
+router.put('/:id/unbookmark', protect, unbookmarkPostController);
 
 export default router;

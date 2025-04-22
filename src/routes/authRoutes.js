@@ -1,9 +1,9 @@
 import express from 'express';
 import { check } from 'express-validator';
 import {
-  registerUser,
-  loginUser,
-  getUserProfile,
+  registerUserController,
+  loginUserController,
+  getUserProfileController,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -20,7 +20,7 @@ router.post(
     }),
     check('fullName', 'Full name is required').notEmpty(),
   ],
-  registerUser
+  registerUserController
 );
 
 // Login user
@@ -30,10 +30,10 @@ router.post(
     check('email', 'Please include a valid email').isEmail(),
     check('password', 'Password is required').exists(),
   ],
-  loginUser
+  loginUserController
 );
 
 // Get user profile
-router.get('/profile', protect, getUserProfile);
+router.get('/profile', protect, getUserProfileController);
 
 export default router;
