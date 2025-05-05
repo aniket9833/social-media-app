@@ -5,7 +5,7 @@ export const findUserByEmail = async (email) => {
     const user = await User.findOne({ email });
     return user;
   } catch (error) {
-    console.log(error);
+    throw new Error(`Database error: ${error.message}`);
   }
 };
 
