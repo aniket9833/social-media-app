@@ -1,18 +1,9 @@
-import { createContext, useState, useEffect, useContext } from 'react';
-import PropTypes from 'prop-types';
-import api from '../services/api';
-import config from '../config/config';
+import { createContext, useState, useEffect, useContext } from "react";
+import PropTypes from "prop-types";
+import api from "../services/api";
+import config from "../config/config";
 
 const AuthContext = createContext();
-
-// Add the useAuth hook export
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -28,7 +19,7 @@ export const AuthProvider = ({ children }) => {
           setUser(parsedUser);
         }
       } catch (error) {
-        console.error('Failed to initialize auth:', error);
+        console.error("Failed to initialize auth:", error);
         localStorage.removeItem(config.AUTH_TOKEN_KEY);
       } finally {
         setLoading(false);
@@ -41,16 +32,30 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      const data = await api.auth.login({ email, password });
+      const response = await api.auth.login({ email, password });
+      const data = response.data || response;
+
       if (!data || !data.token) {
-        throw new Error('Invalid response from server');
+        throw new Error("Invalid response from server");
       }
-      localStorage.setItem(config.AUTH_TOKEN_KEY, JSON.stringify(data));
-      setUser(data);
-      return data;
+
+      const userData = {
+        _id: data._id,
+        username: data.username,
+        email: data.email,
+        fullName: data.fullName,
+        profilePicture: data.profilePicture,
+        token: data.token,
+      };
+
+      localStorage.setItem(config.AUTH_TOKEN_KEY, JSON.stringify(userData));
+      setUser(userData);
+      return userData;
     } catch (error) {
-      setError(error.message || 'Login failed');
-      throw new Error(error.message || 'Login failed');
+      const errorMsg =
+        error.response?.data?.message || error.message || "Login failed";
+      setError(errorMsg);
+      throw new Error(errorMsg);
     }
   };
 
@@ -58,18 +63,35 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       if (!userData.email || !userData.password || !userData.username) {
-        throw new Error('Missing required fields');
+        throw new Error("Missing required fields");
       }
-      const data = await api.auth.register(userData);
+      const response = await api.auth.register(userData);
+      const data = response.data || response;
+
       if (!data || !data.token) {
-        throw new Error('Invalid response from server');
+        throw new Error("Invalid response from server");
       }
-      localStorage.setItem(config.AUTH_TOKEN_KEY, JSON.stringify(data));
-      setUser(data);
-      return data;
+
+      const userDataWithToken = {
+        _id: data._id,
+        username: data.username,
+        email: data.email,
+        fullName: data.fullName,
+        profilePicture: data.profilePicture,
+        token: data.token,
+      };
+
+      localStorage.setItem(
+        config.AUTH_TOKEN_KEY,
+        JSON.stringify(userDataWithToken)
+      );
+      setUser(userDataWithToken);
+      return userDataWithToken;
     } catch (error) {
-      setError(error.message || 'Registration failed');
-      throw new Error(error.message || 'Registration failed');
+      const errorMsg =
+        error.response?.data?.message || error.message || "Registration failed";
+      setError(errorMsg);
+      throw new Error(errorMsg);
     }
   };
 
@@ -79,7 +101,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setError(null);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
@@ -97,6 +119,15 @@ export const AuthProvider = ({ children }) => {
 
 AuthProvider.propTypes = {
   children: PropTypes.node.isRequired,
+};
+
+// Hook should be exported after the provider component
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };
 
 export default AuthProvider;

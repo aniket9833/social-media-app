@@ -1,10 +1,26 @@
-import axios from 'axios';
+import axios from "axios";
 
 const instance = axios.create({
-  baseURL: 'http://localhost:3000', // Replace with your backend URL
+  baseURL: "http://localhost:3000",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
+});
+
+// Add token to requests if it exists
+instance.interceptors.request.use((axiosConfig) => {
+  try {
+    const userData = localStorage.getItem("user_auth");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      if (parsedData.token) {
+        axiosConfig.headers.Authorization = `Bearer ${parsedData.token}`;
+      }
+    }
+  } catch (error) {
+    console.error("Error setting auth token:", error);
+  }
+  return axiosConfig;
 });
 
 export default instance;
