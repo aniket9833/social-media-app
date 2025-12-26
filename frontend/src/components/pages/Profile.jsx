@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import Post from '../posts/Post';
-import ProfileEdit from '../profile/ProfileEdit';
-import toast from 'react-hot-toast';
+import { useState, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import Post from "../posts/Post";
+import ProfileEdit from "../profile/ProfileEdit";
+import toast from "react-hot-toast";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -16,7 +16,7 @@ const Profile = () => {
   const fetchProfile = useCallback(async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${username}`,
+        `http://localhost:3000/api/v1/users/${username}`,
         {
           headers: {
             Authorization: `Bearer ${user.token}`,
@@ -25,9 +25,9 @@ const Profile = () => {
       );
       const data = await response.json();
       setProfile(data);
-      setPosts(data.posts);
+      setPosts(data.posts || []);
     } catch {
-      toast.error('Failed to fetch profile');
+      toast.error("Failed to fetch profile");
     } finally {
       setLoading(false);
     }
@@ -39,7 +39,7 @@ const Profile = () => {
   const fetchAdditionalProfile = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${username}`,
+        `http://localhost:5000/api/v1/users/${username}`,
         {
           headers: {
             Authorization: `Bearer ${user.token}`,
@@ -48,9 +48,9 @@ const Profile = () => {
       );
       const data = await response.json();
       setProfile(data);
-      setPosts(data.posts);
+      setPosts(data.posts || []);
     } catch {
-      toast.error('Failed to fetch profile');
+      toast.error("Failed to fetch profile");
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ const Profile = () => {
       const response = await fetch(
         `http://localhost:3000/api/users/${profile._id}/follow`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
             Authorization: `Bearer ${user.token}`,
           },
@@ -78,7 +78,7 @@ const Profile = () => {
         }));
       }
     } catch {
-      toast.error('Failed to update follow status');
+      toast.error("Failed to update follow status");
     }
   };
 
@@ -96,7 +96,7 @@ const Profile = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
             <img
-              src={profile.avatar || '/default-avatar.png'}
+              src={profile.avatar || "/default-avatar.png"}
               alt={profile.username}
               className="w-20 h-20 rounded-full"
             />
@@ -117,11 +117,11 @@ const Profile = () => {
               onClick={handleFollow}
               className={`px-4 py-2 rounded-lg ${
                 profile.followers.includes(user._id)
-                  ? 'bg-gray-200 text-gray-700'
-                  : 'bg-blue-600 text-white'
+                  ? "bg-gray-200 text-gray-700"
+                  : "bg-blue-600 text-white"
               }`}
             >
-              {profile.followers.includes(user._id) ? 'Unfollow' : 'Follow'}
+              {profile.followers.includes(user._id) ? "Unfollow" : "Follow"}
             </button>
           )}
         </div>

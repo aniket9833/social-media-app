@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import Post from '../posts/Post';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import Post from "../posts/Post";
+import toast from "react-hot-toast";
 
 const Explore = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState('recent');
+  const [sortBy, setSortBy] = useState("recent");
   const { user } = useAuth();
 
   useEffect(() => {
@@ -16,7 +16,7 @@ const Explore = () => {
   const fetchPosts = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/posts?sort=${sortBy}`,
+        `http://localhost:3000/api/v1/posts/explore?sort=${sortBy}`,
         {
           headers: {
             Authorization: `Bearer ${user.token}`,
@@ -24,9 +24,9 @@ const Explore = () => {
         }
       );
       const data = await response.json();
-      setPosts(data);
+      setPosts(data.posts || []);
     } catch {
-      toast.error('Failed to fetch posts');
+      toast.error("Failed to fetch posts");
     } finally {
       setLoading(false);
     }
@@ -42,21 +42,21 @@ const Explore = () => {
         <h2 className="text-xl font-bold mb-4">Explore Posts</h2>
         <div className="flex space-x-4">
           <button
-            onClick={() => handleSort('recent')}
+            onClick={() => handleSort("recent")}
             className={`px-4 py-2 rounded-lg ${
-              sortBy === 'recent'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
+              sortBy === "recent"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
           >
             Recent
           </button>
           <button
-            onClick={() => handleSort('trending')}
+            onClick={() => handleSort("trending")}
             className={`px-4 py-2 rounded-lg ${
-              sortBy === 'trending'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
+              sortBy === "trending"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
           >
             Trending

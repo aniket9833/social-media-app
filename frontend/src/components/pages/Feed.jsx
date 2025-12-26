@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import Post from '../posts/Post';
-import PostForm from '../posts/PostForm';
-import toast from 'react-hot-toast';
-import api from '../../services/api';
+import { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import Post from "../posts/Post";
+import PostForm from "../posts/PostForm";
+import toast from "react-hot-toast";
+import api from "../../services/api";
 
 const Feed = () => {
   const [posts, setPosts] = useState([]);
@@ -17,9 +17,9 @@ const Feed = () => {
   const fetchPosts = async () => {
     try {
       const data = await api.posts.getFeed();
-      setPosts(data);
+      setPosts(data.posts || []);
     } catch {
-      toast.error('Failed to fetch posts');
+      toast.error("Failed to fetch posts");
     } finally {
       setLoading(false);
     }
@@ -41,7 +41,7 @@ const Feed = () => {
         )
       );
     } catch {
-      toast.error('Failed to like post');
+      toast.error("Failed to like post");
     }
   };
 
@@ -50,9 +50,9 @@ const Feed = () => {
       const response = await fetch(
         `http://localhost:3000/api/posts/${postId}/comments`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${user.token}`,
           },
           body: JSON.stringify({ content }),
@@ -67,7 +67,7 @@ const Feed = () => {
         )
       );
     } catch {
-      toast.error('Failed to add comment');
+      toast.error("Failed to add comment");
     }
   };
 
@@ -76,7 +76,7 @@ const Feed = () => {
       const response = await fetch(
         `http://localhost:3000/api/posts/${postId}/bookmark`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
             Authorization: `Bearer ${user.token}`,
           },
@@ -97,7 +97,7 @@ const Feed = () => {
         );
       }
     } catch {
-      toast.error('Failed to bookmark post');
+      toast.error("Failed to bookmark post");
     }
   };
 
