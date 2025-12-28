@@ -39,7 +39,7 @@ const Profile = () => {
   const fetchAdditionalProfile = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/v1/users/${username}`,
+        `http://localhost:3000/api/v1/users/${username}`,
         {
           headers: {
             Authorization: `Bearer ${user.token}`,
@@ -61,7 +61,7 @@ const Profile = () => {
   const handleFollow = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${profile._id}/follow`,
+        `http://localhost:3000/api/v1/users/${profile._id}/follow`,
         {
           method: "POST",
           headers: {

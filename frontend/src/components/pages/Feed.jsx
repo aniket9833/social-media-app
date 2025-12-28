@@ -48,7 +48,7 @@ const Feed = () => {
   const handleComment = async (postId, content) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/posts/${postId}/comments`,
+        `http://localhost:3000/api/v1/posts/${postId}/comments`,
         {
           method: "POST",
           headers: {
@@ -74,7 +74,7 @@ const Feed = () => {
   const handleBookmark = async (postId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/posts/${postId}/bookmark`,
+        `http://localhost:3000/api/v1/posts/${postId}/bookmark`,
         {
           method: "POST",
           headers: {

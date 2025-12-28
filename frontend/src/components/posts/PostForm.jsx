@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 
 const PostForm = ({ onPostCreated }) => {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
@@ -14,14 +14,14 @@ const PostForm = ({ onPostCreated }) => {
 
     setLoading(true);
     const formData = new FormData();
-    formData.append('content', content);
+    formData.append("text", content);
     if (image) {
-      formData.append('image', image);
+      formData.append("media", image);
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/posts', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3000/api/v1/posts", {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -29,12 +29,12 @@ const PostForm = ({ onPostCreated }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create post');
+        throw new Error("Failed to create post");
       }
 
-      setContent('');
+      setContent("");
       setImage(null);
-      toast.success('Post created successfully!');
+      toast.success("Post created successfully!");
       if (onPostCreated) onPostCreated();
     } catch (error) {
       toast.error(error.message);
@@ -94,7 +94,7 @@ const PostForm = ({ onPostCreated }) => {
             disabled={loading || !content.trim()}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition duration-200"
           >
-            {loading ? 'Posting...' : 'Post'}
+            {loading ? "Posting..." : "Post"}
           </button>
         </div>
       </form>

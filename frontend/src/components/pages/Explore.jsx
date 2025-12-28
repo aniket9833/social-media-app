@@ -10,27 +10,26 @@ const Explore = () => {
   const { user } = useAuth();
 
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/v1/posts/explore?sort=${sortBy}`,
+          {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setPosts(data.posts || []);
+      } catch {
+        toast.error("Failed to fetch posts");
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchPosts();
-  }, [sortBy]);
-
-  const fetchPosts = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/v1/posts/explore?sort=${sortBy}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setPosts(data.posts || []);
-    } catch {
-      toast.error("Failed to fetch posts");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [sortBy, user.token]);
 
   const handleSort = (value) => {
     setSortBy(value);

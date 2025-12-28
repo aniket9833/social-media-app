@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 
 const ProfileEdit = ({ profile, onClose, onUpdate }) => {
   const [formData, setFormData] = useState({
     username: profile.username,
     email: profile.email,
-    bio: profile.bio || '',
+    bio: profile.bio || "",
     avatar: null,
   });
   const [loading, setLoading] = useState(false);
@@ -17,18 +17,18 @@ const ProfileEdit = ({ profile, onClose, onUpdate }) => {
     setLoading(true);
 
     const data = new FormData();
-    data.append('username', formData.username);
-    data.append('email', formData.email);
-    data.append('bio', formData.bio);
+    data.append("username", formData.username);
+    data.append("email", formData.email);
+    data.append("bio", formData.bio);
     if (formData.avatar) {
-      data.append('avatar', formData.avatar);
+      data.append("avatar", formData.avatar);
     }
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/users/${profile._id}`,
+        `http://localhost:3000/api/users/${profile._id}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
             Authorization: `Bearer ${user.token}`,
           },
@@ -36,9 +36,9 @@ const ProfileEdit = ({ profile, onClose, onUpdate }) => {
         }
       );
 
-      if (!response.ok) throw new Error('Failed to update profile');
+      if (!response.ok) throw new Error("Failed to update profile");
 
-      toast.success('Profile updated successfully');
+      toast.success("Profile updated successfully");
       onUpdate();
       onClose();
     } catch (error) {
@@ -112,7 +112,7 @@ const ProfileEdit = ({ profile, onClose, onUpdate }) => {
               disabled={loading}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

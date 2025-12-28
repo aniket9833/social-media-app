@@ -16,19 +16,19 @@ const Post = ({ post, onLike, onComment, onBookmark }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-4">
       <div className="flex items-center mb-4">
-        <Link to={`/profile/${post.author.username}`}>
+        <Link to={`/profile/${post.user.username}`}>
           <img
-            src={post.author.avatar || '/default-avatar.png'}
-            alt={post.author.username}
+            src={post.user.profilePicture || '/default-avatar.png'}
+            alt={post.user.username}
             className="w-10 h-10 rounded-full mr-3"
           />
         </Link>
         <div>
           <Link
-            to={`/profile/${post.author.username}`}
+            to={`/profile/${post.user.username}`}
             className="font-semibold text-gray-900 hover:underline"
           >
-            {post.author.username}
+            {post.user.username}
           </Link>
           <p className="text-gray-500 text-sm">
             {new Date(post.createdAt).toLocaleDateString()}
@@ -36,13 +36,34 @@ const Post = ({ post, onLike, onComment, onBookmark }) => {
         </div>
       </div>
 
-      <p className="text-gray-800 mb-4">{post.content}</p>
-      {post.image && (
-        <img
-          src={post.image}
-          alt="Post content"
-          className="rounded-lg max-h-96 w-full object-cover mb-4"
-        />
+      <p className="text-gray-800 mb-4">{post.text}</p>
+      {post.media && post.media.length > 0 && (
+        <div className="mb-4">
+          {post.media.map((media, index) => (
+            media.type === 'image' ? (
+              <img
+                key={index}
+                src={media.url}
+                alt="Post content"
+                className="rounded-lg max-h-96 w-full object-cover mb-2"
+              />
+            ) : media.type === 'video' ? (
+              <video
+                key={index}
+                src={media.url}
+                controls
+                className="rounded-lg max-h-96 w-full object-cover mb-2"
+              />
+            ) : (
+              <audio
+                key={index}
+                src={media.url}
+                controls
+                className="w-full mb-2"
+              />
+            )
+          ))}
+        </div>
       )}
 
       <div className="flex items-center justify-between mb-4">
