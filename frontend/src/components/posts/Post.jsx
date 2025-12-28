@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { HeartIcon, ChatIcon, BookmarkIcon } from '@heroicons/react/outline';
-import { useAuth } from '../../context/AuthContext';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { HeartIcon, ChatIcon, BookmarkIcon } from "@heroicons/react/outline";
+import { useAuth } from "../../context/AuthContext";
 
 const Post = ({ post, onLike, onComment, onBookmark }) => {
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const { user } = useAuth();
 
   const handleSubmitComment = (e) => {
     e.preventDefault();
     onComment(post._id, comment);
-    setComment('');
+    setComment("");
   };
 
   return (
@@ -18,7 +18,7 @@ const Post = ({ post, onLike, onComment, onBookmark }) => {
       <div className="flex items-center mb-4">
         <Link to={`/profile/${post.user.username}`}>
           <img
-            src={post.user.profilePicture || '/default-avatar.png'}
+            src={post.user.profilePicture || "/default-avatar.png"}
             alt={post.user.username}
             className="w-10 h-10 rounded-full mr-3"
           />
@@ -39,15 +39,15 @@ const Post = ({ post, onLike, onComment, onBookmark }) => {
       <p className="text-gray-800 mb-4">{post.text}</p>
       {post.media && post.media.length > 0 && (
         <div className="mb-4">
-          {post.media.map((media, index) => (
-            media.type === 'image' ? (
+          {post.media.map((media, index) =>
+            media.type === "image" ? (
               <img
                 key={index}
                 src={media.url}
                 alt="Post content"
                 className="rounded-lg max-h-96 w-full object-cover mb-2"
               />
-            ) : media.type === 'video' ? (
+            ) : media.type === "video" ? (
               <video
                 key={index}
                 src={media.url}
@@ -62,7 +62,7 @@ const Post = ({ post, onLike, onComment, onBookmark }) => {
                 className="w-full mb-2"
               />
             )
-          ))}
+          )}
         </div>
       )}
 
@@ -71,22 +71,24 @@ const Post = ({ post, onLike, onComment, onBookmark }) => {
           <button
             onClick={() => onLike(post._id)}
             className={`flex items-center space-x-1 ${
-              post.likes.includes(user._id) ? 'text-red-500' : 'text-gray-500'
+              post.likes && post.likes.includes(user._id)
+                ? "text-red-500"
+                : "text-gray-500"
             }`}
           >
             <HeartIcon className="w-5 h-5" />
-            <span>{post.likes.length}</span>
+            <span>{post.likes ? post.likes.length : 0}</span>
           </button>
           <button className="flex items-center space-x-1 text-gray-500">
             <ChatIcon className="w-5 h-5" />
-            <span>{post.comments.length}</span>
+            <span>{post.comments ? post.comments.length : 0}</span>
           </button>
           <button
             onClick={() => onBookmark(post._id)}
             className={`flex items-center space-x-1 ${
-              post.bookmarks.includes(user._id)
-                ? 'text-blue-500'
-                : 'text-gray-500'
+              post.bookmarks && post.bookmarks.includes(user._id)
+                ? "text-blue-500"
+                : "text-gray-500"
             }`}
           >
             <BookmarkIcon className="w-5 h-5" />
@@ -114,26 +116,28 @@ const Post = ({ post, onLike, onComment, onBookmark }) => {
       </form>
 
       <div className="space-y-2">
-        {post.comments.map((comment) => (
-          <div key={comment._id} className="flex items-start space-x-2">
-            <Link to={`/profile/${comment.author.username}`}>
-              <img
-                src={comment.author.avatar || '/default-avatar.png'}
-                alt={comment.author.username}
-                className="w-8 h-8 rounded-full"
-              />
-            </Link>
-            <div className="flex-1 bg-gray-50 rounded-lg p-2">
-              <Link
-                to={`/profile/${comment.author.username}`}
-                className="font-semibold text-sm text-gray-900 hover:underline"
-              >
-                {comment.author.username}
+        {post.comments &&
+          post.comments.length > 0 &&
+          post.comments.map((comment) => (
+            <div key={comment._id} className="flex items-start space-x-2">
+              <Link to={`/profile/${comment.author.username}`}>
+                <img
+                  src={comment.author.avatar || "/default-avatar.png"}
+                  alt={comment.author.username}
+                  className="w-8 h-8 rounded-full"
+                />
               </Link>
-              <p className="text-sm text-gray-700">{comment.content}</p>
+              <div className="flex-1 bg-gray-50 rounded-lg p-2">
+                <Link
+                  to={`/profile/${comment.author.username}`}
+                  className="font-semibold text-sm text-gray-900 hover:underline"
+                >
+                  {comment.author.username}
+                </Link>
+                <p className="text-sm text-gray-700">{comment.content}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );

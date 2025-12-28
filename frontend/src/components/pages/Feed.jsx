@@ -16,7 +16,8 @@ const Feed = () => {
 
   const fetchPosts = async () => {
     try {
-      const data = await api.posts.getFeed();
+      const response = await api.posts.getFeed();
+      const data = response.data || response;
       setPosts(data.posts || []);
     } catch {
       toast.error("Failed to fetch posts");
