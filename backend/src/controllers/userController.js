@@ -1,4 +1,4 @@
-import { validationResult } from 'express-validator';
+import { validationResult } from "express-validator";
 import {
   getUserByUsername,
   updateUserProfile,
@@ -10,7 +10,7 @@ import {
   getFriendRequests,
   getFriends,
   searchUsers,
-} from '../services/userService.js';
+} from "../services/userService.js";
 
 // @desc    Get user by username
 // @route   GET /api/users/:username
@@ -21,7 +21,7 @@ const getUserByUsernameController = async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error(error);
-    if (error.message === 'User not found') {
+    if (error.message === "User not found") {
       res.status(404).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message });
@@ -43,7 +43,7 @@ const updateUserProfileController = async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error(error);
-    if (error.message === 'User not found') {
+    if (error.message === "User not found") {
       res.status(404).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message });
@@ -60,7 +60,11 @@ const followUserController = async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error(error);
-    if (error.message === 'User not found' || error.message === 'You cannot follow yourself' || error.message === 'User already followed') {
+    if (
+      error.message === "User not found" ||
+      error.message === "You cannot follow yourself" ||
+      error.message === "User already followed"
+    ) {
       res.status(404).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message });
@@ -77,7 +81,11 @@ const unfollowUserController = async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error(error);
-    if (error.message === 'User not found' || error.message === 'You cannot unfollow yourself' || error.message === 'You are not following this user') {
+    if (
+      error.message === "User not found" ||
+      error.message === "You cannot unfollow yourself" ||
+      error.message === "You are not following this user"
+    ) {
       res.status(404).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message });
@@ -94,7 +102,12 @@ const sendFriendRequestController = async (req, res) => {
     res.status(201).json(result);
   } catch (error) {
     console.error(error);
-    if (error.message === 'User not found' || error.message === 'You cannot send a friend request to yourself' || error.message === 'Friend request already sent' || error.message === 'You are already friends with this user') {
+    if (
+      error.message === "User not found" ||
+      error.message === "You cannot send a friend request to yourself" ||
+      error.message === "Friend request already sent" ||
+      error.message === "You are already friends with this user"
+    ) {
       res.status(404).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message });
@@ -107,11 +120,18 @@ const sendFriendRequestController = async (req, res) => {
 // @access  Private
 const acceptFriendRequestController = async (req, res) => {
   try {
-    const result = await acceptFriendRequest(req.params.requestId, req.user._id);
+    const result = await acceptFriendRequest(
+      req.params.requestId,
+      req.user._id
+    );
     res.json(result);
   } catch (error) {
     console.error(error);
-    if (error.message === 'Friend request not found' || error.message === 'Not authorized' || error.message.includes('Friend request already')) {
+    if (
+      error.message === "Friend request not found" ||
+      error.message === "Not authorized" ||
+      error.message.includes("Friend request already")
+    ) {
       res.status(404).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message });
@@ -124,11 +144,18 @@ const acceptFriendRequestController = async (req, res) => {
 // @access  Private
 const rejectFriendRequestController = async (req, res) => {
   try {
-    const result = await rejectFriendRequest(req.params.requestId, req.user._id);
+    const result = await rejectFriendRequest(
+      req.params.requestId,
+      req.user._id
+    );
     res.json(result);
   } catch (error) {
     console.error(error);
-    if (error.message === 'Friend request not found' || error.message === 'Not authorized' || error.message.includes('Friend request already')) {
+    if (
+      error.message === "Friend request not found" ||
+      error.message === "Not authorized" ||
+      error.message.includes("Friend request already")
+    ) {
       res.status(404).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message });
@@ -167,8 +194,12 @@ const getFriendsController = async (req, res) => {
 // @access  Private
 const searchUsersController = async (req, res) => {
   try {
-    const result = await searchUsers(req.query.q);
-    res.json(result);
+    const query = req.query.query || req.query.q || "";
+    if (!query.trim()) {
+      return res.json({ users: [] });
+    }
+    const result = await searchUsers(query);
+    res.json({ users: result });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });

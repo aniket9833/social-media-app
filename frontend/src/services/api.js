@@ -39,6 +39,8 @@ const api = {
 
   users: {
     getProfile: (username) => axios.get(`${API_PREFIX}/users/${username}`),
+    search: (query) =>
+      axios.get(`${API_PREFIX}/users/search`, { params: { query } }),
     update: (userId, userData) =>
       axios.put(`${API_PREFIX}/users/${userId}`, userData),
     follow: (userId) => axios.put(`${API_PREFIX}/users/${userId}/follow`),

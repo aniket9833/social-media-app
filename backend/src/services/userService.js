@@ -279,7 +279,7 @@ const searchUsers = async (query) => {
       { fullName: { $regex: query, $options: "i" } },
     ],
   })
-    .select("username fullName profilePicture")
+    .select("_id username fullName profilePicture")
     .limit(10);
 
   return users;
