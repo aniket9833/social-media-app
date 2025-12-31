@@ -34,9 +34,7 @@ const Feed = () => {
           post._id === postId
             ? {
                 ...post,
-                likes: post.likes.includes(user._id)
-                  ? post.likes.filter((id) => id !== user._id)
-                  : [...post.likes, user._id],
+                likes: [...post.likes, user._id],
               }
             : post
         )
@@ -46,20 +44,28 @@ const Feed = () => {
     }
   };
 
-  const handleComment = async (postId, content) => {
+  const handleUnlike = async (postId) => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/v1/posts/${postId}/comments`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${user.token}`,
-          },
-          body: JSON.stringify({ content }),
-        }
+      await api.posts.unlike(postId);
+      setPosts(
+        posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                likes: post.likes.filter((id) => id !== user._id),
+              }
+            : post
+        )
       );
-      const data = await response.json();
+    } catch {
+      toast.error("Failed to unlike post");
+    }
+  };
+
+  const handleComment = async (postId, text) => {
+    try {
+      const response = await api.posts.comment(postId, text);
+      const data = response.data;
       setPosts(
         posts.map((post) =>
           post._id === postId
@@ -72,31 +78,36 @@ const Feed = () => {
     }
   };
 
+  const handleReply = (postId, commentId, updatedComment) => {
+    setPosts(
+      posts.map((post) =>
+        post._id === postId
+          ? {
+              ...post,
+              comments: post.comments.map((comment) =>
+                comment._id === commentId ? updatedComment : comment
+              ),
+            }
+          : post
+      )
+    );
+  };
+
   const handleBookmark = async (postId) => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/v1/posts/${postId}/bookmark`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
+      await api.posts.bookmark(postId);
+      setPosts(
+        posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                bookmarks: post.bookmarks.includes(user._id)
+                  ? post.bookmarks.filter((id) => id !== user._id)
+                  : [...post.bookmarks, user._id],
+              }
+            : post
+        )
       );
-      if (response.ok) {
-        setPosts(
-          posts.map((post) =>
-            post._id === postId
-              ? {
-                  ...post,
-                  bookmarks: post.bookmarks.includes(user._id)
-                    ? post.bookmarks.filter((id) => id !== user._id)
-                    : [...post.bookmarks, user._id],
-                }
-              : post
-          )
-        );
-      }
     } catch {
       toast.error("Failed to bookmark post");
     }
@@ -119,7 +130,9 @@ const Feed = () => {
             key={post._id}
             post={post}
             onLike={handleLike}
+            onUnlike={handleUnlike}
             onComment={handleComment}
+            onReply={handleReply}
             onBookmark={handleBookmark}
           />
         ))}

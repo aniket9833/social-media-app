@@ -22,10 +22,19 @@ const api = {
     getExplore: (sortBy) =>
       axios.get(`${API_PREFIX}/posts/explore?sort=${sortBy}`),
     create: (postData) => axios.post(`${API_PREFIX}/posts`, postData),
-    like: (postId) => axios.post(`${API_PREFIX}/posts/${postId}/like`),
-    comment: (postId, content) =>
-      axios.post(`${API_PREFIX}/posts/${postId}/comments`, { content }),
-    bookmark: (postId) => axios.post(`${API_PREFIX}/posts/${postId}/bookmark`),
+    like: (postId) => axios.put(`${API_PREFIX}/posts/${postId}/like`),
+    unlike: (postId) => axios.put(`${API_PREFIX}/posts/${postId}/unlike`),
+    comment: (postId, text) =>
+      axios.post(`${API_PREFIX}/posts/${postId}/comments`, { text }),
+    reply: (commentId, text) =>
+      axios.post(`${API_PREFIX}/posts/comments/${commentId}/reply`, { text }),
+    deleteReply: (commentId, replyId) =>
+      axios.delete(
+        `${API_PREFIX}/posts/comments/${commentId}/reply/${replyId}`
+      ),
+    bookmark: (postId) => axios.put(`${API_PREFIX}/posts/${postId}/bookmark`),
+    unbookmark: (postId) =>
+      axios.put(`${API_PREFIX}/posts/${postId}/unbookmark`),
   },
 
   users: {

@@ -2,15 +2,41 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { HeartIcon, ChatIcon, BookmarkIcon } from "@heroicons/react/outline";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
+import api from "../../services/api";
 
-const Post = ({ post, onLike, onComment, onBookmark }) => {
+const Post = ({ post, onLike, onUnlike, onComment, onBookmark, onReply }) => {
   const [comment, setComment] = useState("");
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
   const { user } = useAuth();
+
+  const handleLikeClick = () => {
+    if (post.likes && post.likes.includes(user._id)) {
+      onUnlike(post._id);
+    } else {
+      onLike(post._id);
+    }
+  };
 
   const handleSubmitComment = (e) => {
     e.preventDefault();
     onComment(post._id, comment);
     setComment("");
+  };
+
+  const handleSubmitReply = async (e, commentId) => {
+    e.preventDefault();
+    if (!replyText.trim()) return;
+
+    try {
+      const response = await api.posts.reply(commentId, replyText);
+      onReply(post._id, commentId, response.data);
+      setReplyText("");
+      setReplyingTo(null);
+    } catch {
+      toast.error("Failed to add reply");
+    }
   };
 
   return (
@@ -69,7 +95,7 @@ const Post = ({ post, onLike, onComment, onBookmark }) => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => onLike(post._id)}
+            onClick={handleLikeClick}
             className={`flex items-center space-x-1 ${
               post.likes && post.likes.includes(user._id)
                 ? "text-red-500"
@@ -119,23 +145,89 @@ const Post = ({ post, onLike, onComment, onBookmark }) => {
         {post.comments &&
           post.comments.length > 0 &&
           post.comments.map((comment) => (
-            <div key={comment._id} className="flex items-start space-x-2">
-              <Link to={`/profile/${comment.author.username}`}>
-                <img
-                  src={comment.author.avatar || "/default-avatar.png"}
-                  alt={comment.author.username}
-                  className="w-8 h-8 rounded-full"
-                />
-              </Link>
-              <div className="flex-1 bg-gray-50 rounded-lg p-2">
-                <Link
-                  to={`/profile/${comment.author.username}`}
-                  className="font-semibold text-sm text-gray-900 hover:underline"
-                >
-                  {comment.author.username}
+            <div key={comment._id}>
+              <div className="flex items-start space-x-2">
+                <Link to={`/profile/${comment.user.username}`}>
+                  <img
+                    src={comment.user.profilePicture || "/default-avatar.png"}
+                    alt={comment.user.username}
+                    className="w-8 h-8 rounded-full"
+                  />
                 </Link>
-                <p className="text-sm text-gray-700">{comment.content}</p>
+                <div className="flex-1 bg-gray-50 rounded-lg p-2">
+                  <Link
+                    to={`/profile/${comment.user.username}`}
+                    className="font-semibold text-sm text-gray-900 hover:underline"
+                  >
+                    {comment.user.username}
+                  </Link>
+                  <p className="text-sm text-gray-700">{comment.text}</p>
+                  <button
+                    onClick={() =>
+                      setReplyingTo(
+                        replyingTo === comment._id ? null : comment._id
+                      )
+                    }
+                    className="text-xs text-blue-500 hover:text-blue-700 mt-1"
+                  >
+                    {replyingTo === comment._id ? "Cancel" : "Reply"}
+                  </button>
+                </div>
               </div>
+
+              {/* Display replies */}
+              {comment.replies && comment.replies.length > 0 && (
+                <div className="ml-6 mt-2 space-y-2">
+                  {comment.replies.map((reply) => (
+                    <div key={reply._id} className="flex items-start space-x-2">
+                      <Link to={`/profile/${reply.user.username}`}>
+                        <img
+                          src={
+                            reply.user.profilePicture || "/default-avatar.png"
+                          }
+                          alt={reply.user.username}
+                          className="w-6 h-6 rounded-full"
+                        />
+                      </Link>
+                      <div className="flex-1 bg-gray-100 rounded-lg p-2">
+                        <Link
+                          to={`/profile/${reply.user.username}`}
+                          className="font-semibold text-xs text-gray-900 hover:underline"
+                        >
+                          {reply.user.username}
+                        </Link>
+                        <p className="text-xs text-gray-700">{reply.text}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Reply form */}
+              {replyingTo === comment._id && (
+                <form
+                  onSubmit={(e) => handleSubmitReply(e, comment._id)}
+                  className="ml-6 mt-2"
+                >
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      placeholder="Add a reply..."
+                      className="flex-1 px-3 py-1 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      autoFocus
+                    />
+                    <button
+                      type="submit"
+                      disabled={!replyText.trim()}
+                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      Reply
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           ))}
       </div>

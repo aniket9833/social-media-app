@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import Post from "../posts/Post";
 import toast from "react-hot-toast";
+import api from "../../services/api";
 
 const Explore = () => {
   const [posts, setPosts] = useState([]);
@@ -12,15 +13,8 @@ const Explore = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3000/api/v1/posts/explore?sort=${sortBy}`,
-          {
-            headers: {
-              Authorization: `Bearer ${user.token}`,
-            },
-          }
-        );
-        const data = await response.json();
+        const response = await api.posts.getExplore(sortBy);
+        const data = response.data || response;
         setPosts(data.posts || []);
       } catch {
         toast.error("Failed to fetch posts");
@@ -29,10 +23,97 @@ const Explore = () => {
       }
     };
     fetchPosts();
-  }, [sortBy, user.token]);
+  }, [sortBy]);
 
   const handleSort = (value) => {
     setSortBy(value);
+  };
+
+  const handleLike = async (postId) => {
+    try {
+      await api.posts.like(postId);
+      setPosts(
+        posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                likes: [...post.likes, user._id],
+              }
+            : post
+        )
+      );
+    } catch {
+      toast.error("Failed to like post");
+    }
+  };
+
+  const handleUnlike = async (postId) => {
+    try {
+      await api.posts.unlike(postId);
+      setPosts(
+        posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                likes: post.likes.filter((id) => id !== user._id),
+              }
+            : post
+        )
+      );
+    } catch {
+      toast.error("Failed to unlike post");
+    }
+  };
+
+  const handleComment = async (postId, text) => {
+    try {
+      const response = await api.posts.comment(postId, text);
+      const data = response.data;
+      setPosts(
+        posts.map((post) =>
+          post._id === postId
+            ? { ...post, comments: [...post.comments, data] }
+            : post
+        )
+      );
+    } catch {
+      toast.error("Failed to add comment");
+    }
+  };
+
+  const handleReply = (postId, commentId, updatedComment) => {
+    setPosts(
+      posts.map((post) =>
+        post._id === postId
+          ? {
+              ...post,
+              comments: post.comments.map((comment) =>
+                comment._id === commentId ? updatedComment : comment
+              ),
+            }
+          : post
+      )
+    );
+  };
+
+  const handleBookmark = async (postId) => {
+    try {
+      await api.posts.bookmark(postId);
+      setPosts(
+        posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                bookmarks: post.bookmarks.includes(user._id)
+                  ? post.bookmarks.filter((id) => id !== user._id)
+                  : [...post.bookmarks, user._id],
+              }
+            : post
+        )
+      );
+    } catch {
+      toast.error("Failed to bookmark post");
+    }
   };
 
   return (
@@ -70,7 +151,15 @@ const Explore = () => {
       ) : (
         <div className="space-y-4">
           {posts.map((post) => (
-            <Post key={post._id} post={post} />
+            <Post
+              key={post._id}
+              post={post}
+              onLike={handleLike}
+              onUnlike={handleUnlike}
+              onComment={handleComment}
+              onReply={handleReply}
+              onBookmark={handleBookmark}
+            />
           ))}
         </div>
       )}
