@@ -4,14 +4,23 @@ import { useAuth } from "../../context/AuthContext";
 import Post from "../posts/Post";
 import ProfileEdit from "../profile/ProfileEdit";
 import toast from "react-hot-toast";
+import { usePostInteractions } from "../../hooks/usePostInteractions";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
-  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const { username } = useParams();
   const { user } = useAuth();
+  const {
+    posts,
+    setPosts,
+    handleLike,
+    handleUnlike,
+    handleComment,
+    handleReply,
+    handleBookmark,
+  } = usePostInteractions([], user);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -31,32 +40,11 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  }, [username, user.token]);
+  }, [username, user.token, setPosts]);
 
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
-  const fetchAdditionalProfile = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/v1/users/${username}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setProfile(data);
-      setPosts(data.posts || []);
-    } catch {
-      toast.error("Failed to fetch profile");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchAdditionalProfile();
 
   const handleFollow = async () => {
     try {
@@ -143,7 +131,15 @@ const Profile = () => {
 
       <div className="space-y-4">
         {posts.map((post) => (
-          <Post key={post._id} post={post} />
+          <Post
+            key={post._id}
+            post={post}
+            onLike={handleLike}
+            onUnlike={handleUnlike}
+            onComment={handleComment}
+            onReply={handleReply}
+            onBookmark={handleBookmark}
+          />
         ))}
       </div>
     </div>
