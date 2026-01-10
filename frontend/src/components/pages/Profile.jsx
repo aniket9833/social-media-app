@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import Post from "../posts/Post";
 import ProfileEdit from "../profile/ProfileEdit";
+import api from "../../services/api";
 import toast from "react-hot-toast";
 import { usePostInteractions } from "../../hooks/usePostInteractions";
 
@@ -24,23 +25,15 @@ const Profile = () => {
 
   const fetchProfile = useCallback(async () => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/v1/users/${username}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setProfile(data);
-      setPosts(data.posts || []);
+      const response = await api.users.getProfile(username);
+      setProfile(response.data);
+      setPosts(response.data.posts || []);
     } catch {
       toast.error("Failed to fetch profile");
     } finally {
       setLoading(false);
     }
-  }, [username, user.token, setPosts]);
+  }, [username, setPosts]);
 
   useEffect(() => {
     fetchProfile();
@@ -48,25 +41,28 @@ const Profile = () => {
 
   const handleFollow = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/v1/users/${profile._id}/follow`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
-      );
-      if (response.ok) {
+      const isFollowing = profile.followers.includes(user._id);
+      if (isFollowing) {
+        // Unfollow
+        await api.users.unfollow(profile._id);
         setProfile((prev) => ({
           ...prev,
-          followers: prev.followers.includes(user._id)
-            ? prev.followers.filter((id) => id !== user._id)
-            : [...prev.followers, user._id],
+          followers: prev.followers.filter((id) => id !== user._id),
         }));
+        toast.success("Unfollowed successfully");
+      } else {
+        // Follow
+        await api.users.follow(profile._id);
+        setProfile((prev) => ({
+          ...prev,
+          followers: [...prev.followers, user._id],
+        }));
+        toast.success("Followed successfully");
       }
-    } catch {
-      toast.error("Failed to update follow status");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to update follow status"
+      );
     }
   };
 
@@ -84,7 +80,7 @@ const Profile = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
             <img
-              src={profile.avatar || "/default-avatar.png"}
+              src={profile.profilePicture || "/default-avatar.png"}
               alt={profile.username}
               className="w-20 h-20 rounded-full"
             />

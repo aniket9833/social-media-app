@@ -44,6 +44,7 @@ const api = {
     update: (userId, userData) =>
       axios.put(`${API_PREFIX}/users/${userId}`, userData),
     follow: (userId) => axios.put(`${API_PREFIX}/users/${userId}/follow`),
+    unfollow: (userId) => axios.put(`${API_PREFIX}/users/${userId}/unfollow`),
   },
 };
 
