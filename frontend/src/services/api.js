@@ -22,6 +22,9 @@ const api = {
     getExplore: (sortBy) =>
       axios.get(`${API_PREFIX}/posts/explore?sort=${sortBy}`),
     create: (postData) => axios.post(`${API_PREFIX}/posts`, postData),
+    update: (postId, postData) =>
+      axios.put(`${API_PREFIX}/posts/${postId}`, postData),
+    delete: (postId) => axios.delete(`${API_PREFIX}/posts/${postId}`),
     like: (postId) => axios.put(`${API_PREFIX}/posts/${postId}/like`),
     unlike: (postId) => axios.put(`${API_PREFIX}/posts/${postId}/unlike`),
     comment: (postId, text) =>

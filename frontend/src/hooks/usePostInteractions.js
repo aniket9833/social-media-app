@@ -101,6 +101,32 @@ export const usePostInteractions = (initialPosts = [], user) => {
     return bookmarkedPostIds.has(postId);
   };
 
+  const handleEditPost = async (postId, newText) => {
+    try {
+      const response = await api.posts.update(postId, { text: newText });
+      setPosts(
+        posts.map((post) =>
+          post._id === postId ? { ...post, text: response.data.text } : post
+        )
+      );
+      toast.success("Post updated successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update post");
+      throw error;
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    try {
+      await api.posts.delete(postId);
+      setPosts(posts.filter((post) => post._id !== postId));
+      toast.success("Post deleted successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete post");
+      throw error;
+    }
+  };
+
   return {
     posts,
     setPosts,
@@ -112,5 +138,7 @@ export const usePostInteractions = (initialPosts = [], user) => {
     bookmarkedPostIds,
     setBookmarkedPostIds,
     isPostBookmarked,
+    handleEditPost,
+    handleDeletePost,
   };
 };

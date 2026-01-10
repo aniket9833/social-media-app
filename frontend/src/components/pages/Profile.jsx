@@ -22,6 +22,8 @@ const Profile = () => {
     handleReply,
     handleBookmark,
     isPostBookmarked,
+    handleEditPost,
+    handleDeletePost,
   } = usePostInteractions([], user);
 
   const fetchProfile = useCallback(async () => {
@@ -137,6 +139,8 @@ const Profile = () => {
             onReply={handleReply}
             onBookmark={handleBookmark}
             isPostBookmarked={isPostBookmarked}
+            onEditPost={handleEditPost}
+            onDeletePost={handleDeletePost}
           />
         ))}
       </div>

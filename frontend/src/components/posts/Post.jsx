@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { HeartIcon, ChatIcon, BookmarkIcon } from "@heroicons/react/outline";
+import {
+  HeartIcon,
+  ChatIcon,
+  BookmarkIcon,
+  DotsHorizontalIcon,
+} from "@heroicons/react/outline";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import api from "../../services/api";
@@ -13,10 +18,15 @@ const Post = ({
   onBookmark,
   onReply,
   isPostBookmarked,
+  onEditPost,
+  onDeletePost,
 }) => {
   const [comment, setComment] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
+  const [showMenu, setShowMenu] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(post.text);
   const { user } = useAuth();
 
   const handleLikeClick = () => {
@@ -47,30 +57,114 @@ const Post = ({
     }
   };
 
+  const handleSaveEdit = async () => {
+    if (!editText.trim()) {
+      toast.error("Post cannot be empty");
+      return;
+    }
+
+    try {
+      await onEditPost(post._id, editText);
+      setIsEditing(false);
+      setShowMenu(false);
+    } catch {
+      // Error toast is already shown in the hook
+    }
+  };
+
+  const handleConfirmDelete = () => {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      onDeletePost(post._id);
+      setShowMenu(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-      <div className="flex items-center mb-4">
-        <Link to={`/profile/${post.user.username}`}>
-          <img
-            src={post.user.profilePicture || "/default-avatar.png"}
-            alt={post.user.username}
-            className="w-10 h-10 rounded-full mr-3"
-          />
-        </Link>
-        <div>
-          <Link
-            to={`/profile/${post.user.username}`}
-            className="font-semibold text-gray-900 hover:underline"
-          >
-            {post.user.username}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <Link to={`/profile/${post.user.username}`}>
+            <img
+              src={post.user.profilePicture || "/default-avatar.png"}
+              alt={post.user.username}
+              className="w-10 h-10 rounded-full mr-3"
+            />
           </Link>
-          <p className="text-gray-500 text-sm">
-            {new Date(post.createdAt).toLocaleDateString()}
-          </p>
+          <div>
+            <Link
+              to={`/profile/${post.user.username}`}
+              className="font-semibold text-gray-900 hover:underline"
+            >
+              {post.user.username}
+            </Link>
+            <p className="text-gray-500 text-sm">
+              {new Date(post.createdAt).toLocaleDateString()}
+            </p>
+          </div>
         </div>
+
+        {/* Ellipsis Menu - Only show for post owner */}
+        {user._id === post.user._id && (
+          <div className="relative">
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="text-gray-500 hover:text-gray-700 p-1"
+              title="Post options"
+            >
+              <DotsHorizontalIcon className="w-5 h-5" />
+            </button>
+
+            {showMenu && (
+              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 border-t border-gray-300"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      <p className="text-gray-800 mb-4">{post.text}</p>
+      {/* Edit Mode */}
+      {isEditing ? (
+        <div className="mb-4">
+          <textarea
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows="4"
+          />
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={handleSaveEdit}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Save
+            </button>
+            <button
+              onClick={() => {
+                setIsEditing(false);
+                setEditText(post.text);
+              }}
+              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="text-gray-800 mb-4">{post.text}</p>
+      )}
+
       {post.media && post.media.length > 0 && (
         <div className="mb-4">
           {post.media.map((media, index) =>
