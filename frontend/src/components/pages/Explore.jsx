@@ -17,6 +17,7 @@ const Explore = () => {
     handleComment,
     handleReply,
     handleBookmark,
+    isPostBookmarked,
   } = usePostInteractions([], user);
 
   const handleSort = (value) => {
@@ -81,6 +82,7 @@ const Explore = () => {
               onComment={handleComment}
               onReply={handleReply}
               onBookmark={handleBookmark}
+              isPostBookmarked={isPostBookmarked}
             />
           ))}
         </div>

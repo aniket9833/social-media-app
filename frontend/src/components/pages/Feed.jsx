@@ -17,6 +17,7 @@ const Feed = () => {
     handleComment,
     handleReply,
     handleBookmark,
+    isPostBookmarked,
   } = usePostInteractions([], user);
 
   const fetchPosts = async () => {
@@ -56,6 +57,7 @@ const Feed = () => {
             onComment={handleComment}
             onReply={handleReply}
             onBookmark={handleBookmark}
+            isPostBookmarked={isPostBookmarked}
           />
         ))}
       </div>

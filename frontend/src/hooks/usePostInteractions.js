@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 export const usePostInteractions = (initialPosts = [], user) => {
   const [posts, setPosts] = useState(initialPosts);
+  const [bookmarkedPostIds, setBookmarkedPostIds] = useState(new Set());
 
   const handleLike = async (postId) => {
     try {
@@ -74,22 +75,30 @@ export const usePostInteractions = (initialPosts = [], user) => {
 
   const handleBookmark = async (postId) => {
     try {
-      await api.posts.bookmark(postId);
-      setPosts(
-        posts.map((post) =>
-          post._id === postId
-            ? {
-                ...post,
-                bookmarks: post.bookmarks.includes(user._id)
-                  ? post.bookmarks.filter((id) => id !== user._id)
-                  : [...post.bookmarks, user._id],
-              }
-            : post
-        )
-      );
-    } catch {
-      toast.error("Failed to bookmark post");
+      const isBookmarked = bookmarkedPostIds.has(postId);
+
+      if (isBookmarked) {
+        // Unbookmark
+        await api.posts.unbookmark(postId);
+        const newBookmarks = new Set(bookmarkedPostIds);
+        newBookmarks.delete(postId);
+        setBookmarkedPostIds(newBookmarks);
+        toast.success("Bookmark removed");
+      } else {
+        // Bookmark
+        await api.posts.bookmark(postId);
+        const newBookmarks = new Set(bookmarkedPostIds);
+        newBookmarks.add(postId);
+        setBookmarkedPostIds(newBookmarks);
+        toast.success("Post bookmarked");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to bookmark post");
     }
+  };
+
+  const isPostBookmarked = (postId) => {
+    return bookmarkedPostIds.has(postId);
   };
 
   return {
@@ -100,5 +109,8 @@ export const usePostInteractions = (initialPosts = [], user) => {
     handleComment,
     handleReply,
     handleBookmark,
+    bookmarkedPostIds,
+    setBookmarkedPostIds,
+    isPostBookmarked,
   };
 };

@@ -5,7 +5,15 @@ import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import api from "../../services/api";
 
-const Post = ({ post, onLike, onUnlike, onComment, onBookmark, onReply }) => {
+const Post = ({
+  post,
+  onLike,
+  onUnlike,
+  onComment,
+  onBookmark,
+  onReply,
+  isPostBookmarked,
+}) => {
   const [comment, setComment] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
@@ -112,8 +120,10 @@ const Post = ({ post, onLike, onUnlike, onComment, onBookmark, onReply }) => {
           <button
             onClick={() => onBookmark(post._id)}
             className={`flex items-center space-x-1 ${
-              post.bookmarks && post.bookmarks.includes(user._id)
-                ? "text-blue-500"
+              isPostBookmarked
+                ? isPostBookmarked(post._id)
+                  ? "text-blue-500"
+                  : "text-gray-500"
                 : "text-gray-500"
             }`}
           >
