@@ -1,13 +1,14 @@
-import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import PrivateRoute from './components/routing/PrivateRoute';
-import Navbar from './components/layout/Navbar';
-import Landing from './components/pages/Landing';
-import Feed from './components/pages/Feed';
-import Explore from './components/pages/Explore';
-import Profile from './components/pages/Profile';
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
+import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import PrivateRoute from "./components/routing/PrivateRoute";
+import Navbar from "./components/layout/Navbar";
+import Landing from "./components/pages/Landing";
+import Feed from "./components/pages/Feed";
+import Explore from "./components/pages/Explore";
+import Profile from "./components/pages/Profile";
+import Bookmarks from "./components/pages/Bookmarks";
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
 
 function App() {
   return (
@@ -40,6 +41,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Profile />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/bookmarks"
+              element={
+                <PrivateRoute>
+                  <Bookmarks />
                 </PrivateRoute>
               }
             />

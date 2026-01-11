@@ -38,6 +38,7 @@ const api = {
     bookmark: (postId) => axios.put(`${API_PREFIX}/posts/${postId}/bookmark`),
     unbookmark: (postId) =>
       axios.put(`${API_PREFIX}/posts/${postId}/unbookmark`),
+    getBookmarks: () => axios.get(`${API_PREFIX}/posts/bookmarks`),
   },
 
   users: {

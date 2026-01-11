@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import Post from "../posts/Post";
 import ProfileEdit from "../profile/ProfileEdit";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 import { usePostInteractions } from "../../hooks/usePostInteractions";
+import { BookmarkIcon } from "@heroicons/react/outline";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -93,12 +94,21 @@ const Profile = () => {
             </div>
           </div>
           {user._id === profile._id ? (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Edit Profile
-            </button>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Edit Profile
+              </button>
+              <Link
+                to="/bookmarks"
+                className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 flex items-center space-x-2"
+              >
+                <BookmarkIcon className="w-5 h-5" />
+                <span>Bookmarks</span>
+              </Link>
+            </div>
           ) : (
             <button
               onClick={handleFollow}
