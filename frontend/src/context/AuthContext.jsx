@@ -13,14 +13,15 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const storedUser = localStorage.getItem(config.AUTH_TOKEN_KEY);
+        // Use sessionStorage to keep sessions isolated per tab
+        const storedUser = sessionStorage.getItem(config.AUTH_TOKEN_KEY);
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser);
           setUser(parsedUser);
         }
       } catch (error) {
         console.error("Failed to initialize auth:", error);
-        localStorage.removeItem(config.AUTH_TOKEN_KEY);
+        sessionStorage.removeItem(config.AUTH_TOKEN_KEY);
       } finally {
         setLoading(false);
       }
@@ -48,7 +49,7 @@ export const AuthProvider = ({ children }) => {
         token: data.token,
       };
 
-      localStorage.setItem(config.AUTH_TOKEN_KEY, JSON.stringify(userData));
+      sessionStorage.setItem(config.AUTH_TOKEN_KEY, JSON.stringify(userData));
       setUser(userData);
       return userData;
     } catch (error) {
@@ -81,7 +82,7 @@ export const AuthProvider = ({ children }) => {
         token: data.token,
       };
 
-      localStorage.setItem(
+      sessionStorage.setItem(
         config.AUTH_TOKEN_KEY,
         JSON.stringify(userDataWithToken)
       );
@@ -97,7 +98,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     try {
-      localStorage.removeItem(config.AUTH_TOKEN_KEY);
+      sessionStorage.removeItem(config.AUTH_TOKEN_KEY);
       setUser(null);
       setError(null);
     } catch (error) {
