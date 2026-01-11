@@ -3,6 +3,10 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../services/api";
 import toast from "react-hot-toast";
+import {
+  compressMedia,
+  generateMediaPreview,
+} from "../../utils/mediaCompression";
 
 const ChatDetail = () => {
   const { chatId } = useParams();
@@ -10,7 +14,9 @@ const ChatDetail = () => {
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [mediaFile, setMediaFile] = useState(null);
+  const [mediaPreview, setMediaPreview] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [compressing, setCompressing] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -33,6 +39,25 @@ const ChatDetail = () => {
     return () => clearInterval(interval);
   }, [chatId]);
 
+  const handleMediaSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setCompressing(true);
+      const compressed = await compressMedia(file);
+      setMediaFile(compressed);
+
+      const preview = await generateMediaPreview(compressed);
+      setMediaPreview(preview);
+      toast.success("Media compressed and ready!");
+    } catch (error) {
+      toast.error(error.message || "Failed to process media");
+    } finally {
+      setCompressing(false);
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
 
@@ -54,6 +79,7 @@ const ChatDetail = () => {
       setMessages([...messages, response.data]);
       setMessageText("");
       setMediaFile(null);
+      setMediaPreview(null);
       toast.success("Message sent");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to send message");
@@ -146,18 +172,55 @@ const ChatDetail = () => {
 
         {/* Message Input */}
         <form onSubmit={handleSendMessage} className="border-t p-4 space-y-2">
-          {mediaFile && (
-            <div className="text-sm text-gray-600 flex items-center justify-between">
-              <span>📎 {mediaFile.name}</span>
+          {/* Media Preview */}
+          {mediaPreview && (
+            <div className="relative bg-gray-100 rounded-lg overflow-hidden">
+              {mediaPreview.type === "image" && (
+                <img
+                  src={mediaPreview.src}
+                  alt="Preview"
+                  className="max-h-48 w-full object-cover"
+                />
+              )}
+              {mediaPreview.type === "video" && (
+                <video
+                  src={mediaPreview.src}
+                  controls
+                  className="max-h-48 w-full"
+                />
+              )}
+              {mediaPreview.type === "audio" && (
+                <div className="flex items-center space-x-3 p-3">
+                  <svg
+                    className="w-8 h-8 text-gray-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm10 12H4V5h10v10z" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">
+                      {mediaPreview.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {mediaPreview.size} MB
+                    </p>
+                  </div>
+                </div>
+              )}
               <button
                 type="button"
-                onClick={() => setMediaFile(null)}
-                className="text-red-600 hover:text-red-700"
+                onClick={() => {
+                  setMediaFile(null);
+                  setMediaPreview(null);
+                }}
+                className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
               >
-                Remove
+                ✕
               </button>
             </div>
           )}
+
           <div className="flex space-x-2">
             <input
               type="text"
@@ -165,6 +228,7 @@ const ChatDetail = () => {
               onChange={(e) => setMessageText(e.target.value)}
               placeholder="Type a message..."
               className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={compressing}
             />
             <label
               className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 cursor-pointer"
@@ -174,15 +238,17 @@ const ChatDetail = () => {
               <input
                 type="file"
                 accept="image/*,video/*,audio/*"
-                onChange={(e) => setMediaFile(e.target.files?.[0])}
+                onChange={handleMediaSelect}
+                disabled={compressing}
                 className="hidden"
               />
             </label>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              disabled={compressing}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
-              Send
+              {compressing ? "..." : "Send"}
             </button>
           </div>
         </form>

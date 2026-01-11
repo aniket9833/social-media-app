@@ -1,12 +1,37 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
+import {
+  compressMedia,
+  generateMediaPreview,
+} from "../../utils/mediaCompression";
 
 const PostForm = ({ onPostCreated }) => {
   const [content, setContent] = useState("");
-  const [image, setImage] = useState(null);
+  const [media, setMedia] = useState(null);
+  const [mediaPreview, setMediaPreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const { user } = useAuth();
+
+  const handleMediaSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      setCompressing(true);
+      const compressed = await compressMedia(file);
+      setMedia(compressed);
+
+      const preview = await generateMediaPreview(compressed);
+      setMediaPreview(preview);
+      toast.success("Media compressed and ready!");
+    } catch (error) {
+      toast.error(error.message || "Failed to process media");
+    } finally {
+      setCompressing(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,8 +40,8 @@ const PostForm = ({ onPostCreated }) => {
     setLoading(true);
     const formData = new FormData();
     formData.append("text", content);
-    if (image) {
-      formData.append("media", image);
+    if (media) {
+      formData.append("media", media);
     }
 
     try {
@@ -33,7 +58,8 @@ const PostForm = ({ onPostCreated }) => {
       }
 
       setContent("");
-      setImage(null);
+      setMedia(null);
+      setMediaPreview(null);
       toast.success("Post created successfully!");
       if (onPostCreated) onPostCreated();
     } catch (error) {
@@ -55,6 +81,57 @@ const PostForm = ({ onPostCreated }) => {
             rows="3"
           />
         </div>
+
+        {/* Media Preview */}
+        {mediaPreview && (
+          <div className="mb-4 relative">
+            <div className="bg-gray-100 rounded-lg overflow-hidden">
+              {mediaPreview.type === "image" && (
+                <img
+                  src={mediaPreview.src}
+                  alt="Preview"
+                  className="max-h-80 w-full object-cover"
+                />
+              )}
+              {mediaPreview.type === "video" && (
+                <video
+                  src={mediaPreview.src}
+                  controls
+                  className="max-h-80 w-full"
+                />
+              )}
+              {mediaPreview.type === "audio" && (
+                <div className="flex items-center space-x-3 p-4">
+                  <svg
+                    className="w-12 h-12 text-gray-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm10 12H4V5h10v10z" />
+                  </svg>
+                  <div>
+                    <p className="font-medium text-gray-700">
+                      {mediaPreview.name}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {mediaPreview.size} MB
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setMedia(null);
+                setMediaPreview(null);
+              }}
+              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -78,20 +155,21 @@ const PostForm = ({ onPostCreated }) => {
               <input
                 type="file"
                 className="hidden"
-                accept="image/*"
-                onChange={(e) => setImage(e.target.files[0])}
+                accept="image/*,video/*,audio/*"
+                onChange={handleMediaSelect}
+                disabled={compressing}
               />
             </label>
-            {image && (
-              <span className="text-sm text-gray-500">
-                Image selected: {image.name}
+            {compressing && (
+              <span className="text-sm text-blue-600 font-medium">
+                Compressing...
               </span>
             )}
           </div>
 
           <button
             type="submit"
-            disabled={loading || !content.trim()}
+            disabled={loading || !content.trim() || compressing}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition duration-200"
           >
             {loading ? "Posting..." : "Post"}

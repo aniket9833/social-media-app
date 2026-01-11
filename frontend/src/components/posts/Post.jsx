@@ -173,14 +173,14 @@ const Post = ({
                 key={index}
                 src={media.url}
                 alt="Post content"
-                className="rounded-lg max-h-96 w-full object-cover mb-2"
+                className="rounded-lg max-h-96 w-full object-contain mb-2"
               />
             ) : media.type === "video" ? (
               <video
                 key={index}
                 src={media.url}
                 controls
-                className="rounded-lg max-h-96 w-full object-cover mb-2"
+                className="rounded-lg max-h-96 w-full object-contain mb-2"
               />
             ) : (
               <audio
