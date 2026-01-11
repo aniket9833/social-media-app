@@ -46,24 +46,19 @@ const Profile = () => {
 
   const handleFollow = async () => {
     try {
-      const isFollowing = profile.followers.includes(user._id);
+      const isFollowing =
+        profile.followers && profile.followers.some((f) => f._id === user._id);
       if (isFollowing) {
         // Unfollow
         await api.users.unfollow(profile._id);
-        setProfile((prev) => ({
-          ...prev,
-          followers: prev.followers.filter((id) => id !== user._id),
-        }));
         toast.success("Unfollowed successfully");
       } else {
         // Follow
         await api.users.follow(profile._id);
-        setProfile((prev) => ({
-          ...prev,
-          followers: [...prev.followers, user._id],
-        }));
         toast.success("Followed successfully");
       }
+      // Refetch profile to get updated followers/following data
+      await fetchProfile();
     } catch (error) {
       toast.error(
         error.response?.data?.message || "Failed to update follow status"
@@ -123,13 +118,23 @@ const Profile = () => {
             <>
               <button
                 onClick={handleFollow}
-                className={`px-4 py-2 rounded-lg ${
-                  profile.followers.includes(user._id)
-                    ? "bg-gray-200 text-gray-700"
-                    : "bg-blue-600 text-white"
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  profile.followers &&
+                  profile.followers.some((f) => f._id === user._id)
+                    ? "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                    : profile.following &&
+                      profile.following.some((f) => f._id === user._id)
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
               >
-                {profile.followers.includes(user._id) ? "Unfollow" : "Follow"}
+                {profile.followers &&
+                profile.followers.some((f) => f._id === user._id)
+                  ? "Following"
+                  : profile.following &&
+                    profile.following.some((f) => f._id === user._id)
+                  ? "Follow Back"
+                  : "Follow"}
               </button>
               <button
                 onClick={handleSendMessage}

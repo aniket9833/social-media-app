@@ -7,8 +7,8 @@ import Chat from "../schema/chat.js";
 const getUserByUsername = async (username) => {
   const user = await User.findOne({ username })
     .select("-password")
-    .populate("followers", "username fullName profilePicture")
-    .populate("following", "username fullName profilePicture");
+    .populate("followers", "_id username fullName profilePicture")
+    .populate("following", "_id username fullName profilePicture");
 
   if (!user) {
     throw new Error("User not found");
