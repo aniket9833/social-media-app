@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import Post from "../posts/Post";
 import ProfileEdit from "../profile/ProfileEdit";
+import FollowersModal from "../profile/FollowersModal";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 import { usePostInteractions } from "../../hooks/usePostInteractions";
@@ -12,6 +13,8 @@ const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [showFollowersModal, setShowFollowersModal] = useState(false);
+  const [showFollowingModal, setShowFollowingModal] = useState(false);
   const { username } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -148,9 +151,24 @@ const Profile = () => {
         </div>
 
         <div className="flex space-x-4 text-gray-600">
-          <span>{posts.length} posts</span>
-          <span>{profile.followers.length} followers</span>
-          <span>{profile.following.length} following</span>
+          <span
+            className="cursor-pointer hover:text-gray-900"
+            onClick={() => setShowFollowersModal(true)}
+          >
+            {posts.length} posts
+          </span>
+          <span
+            className="cursor-pointer hover:text-gray-900"
+            onClick={() => setShowFollowersModal(true)}
+          >
+            {profile.followers.length} followers
+          </span>
+          <span
+            className="cursor-pointer hover:text-gray-900"
+            onClick={() => setShowFollowingModal(true)}
+          >
+            {profile.following.length} following
+          </span>
         </div>
       </div>
 
@@ -159,6 +177,24 @@ const Profile = () => {
           profile={profile}
           onClose={() => setIsEditing(false)}
           onUpdate={fetchProfile}
+        />
+      )}
+
+      {showFollowersModal && (
+        <FollowersModal
+          title="Followers"
+          users={profile.followers}
+          onClose={() => setShowFollowersModal(false)}
+          onFollowChange={fetchProfile}
+        />
+      )}
+
+      {showFollowingModal && (
+        <FollowersModal
+          title="Following"
+          users={profile.following}
+          onClose={() => setShowFollowingModal(false)}
+          onFollowChange={fetchProfile}
         />
       )}
 
