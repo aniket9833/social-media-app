@@ -36,19 +36,26 @@ const deleteComment = async (commentId, userId) => {
     throw new Error("Comment not found");
   }
 
-  // Check comment belongs to user
-  if (comment.user.toString() !== userId.toString()) {
+  // Get the post to check if user is post owner
+  const post = await Post.findById(comment.post);
+
+  if (!post) {
+    throw new Error("Post not found");
+  }
+
+  // Check if user is comment author OR post owner
+  const isCommentAuthor = comment.user.toString() === userId.toString();
+  const isPostOwner = post.user.toString() === userId.toString();
+
+  if (!isCommentAuthor && !isPostOwner) {
     throw new Error("User not authorized");
   }
 
   // Remove comment from post's comments array
-  const post = await Post.findById(comment.post);
-  if (post) {
-    post.comments = post.comments.filter(
-      (id) => id.toString() !== commentId.toString()
-    );
-    await post.save();
-  }
+  post.comments = post.comments.filter(
+    (id) => id.toString() !== commentId.toString()
+  );
+  await post.save();
 
   // Delete comment
   await Comment.deleteOne({ _id: commentId });

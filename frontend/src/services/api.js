@@ -29,6 +29,8 @@ const api = {
     unlike: (postId) => axios.put(`${API_PREFIX}/posts/${postId}/unlike`),
     comment: (postId, text) =>
       axios.post(`${API_PREFIX}/posts/${postId}/comments`, { text }),
+    deleteComment: (commentId) =>
+      axios.delete(`${API_PREFIX}/comments/${commentId}`),
     reply: (commentId, text) =>
       axios.post(`${API_PREFIX}/posts/comments/${commentId}/reply`, { text }),
     deleteReply: (commentId, replyId) =>

@@ -57,7 +57,9 @@ const Messages = () => {
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <ChatIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500 text-lg">No messages yet</p>
-          <p className="text-gray-400 mt-2">Start a conversation by visiting a user's profile</p>
+          <p className="text-gray-400 mt-2">
+            Start a conversation by visiting a user's profile
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -193,7 +195,9 @@ const ChatWindow = ({ chatId }) => {
             <div
               key={message._id}
               className={`flex ${
-                message.sender._id === user._id ? "justify-end" : "justify-start"
+                message.sender._id === user._id
+                  ? "justify-end"
+                  : "justify-start"
               }`}
             >
               <div

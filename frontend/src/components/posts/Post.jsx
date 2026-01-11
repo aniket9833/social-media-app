@@ -72,11 +72,37 @@ const Post = ({
     }
   };
 
-  const handleConfirmDelete = () => {
-    if (window.confirm("Are you sure you want to delete this post?")) {
-      onDeletePost(post._id);
-      setShowMenu(false);
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm("Are you sure you want to delete this comment?")) {
+      return;
     }
+
+    try {
+      await api.posts.deleteComment(commentId);
+      // Refresh the post by calling onComment callback or similar
+      // Since we don't have a direct callback, we can emit a custom event or use a state update
+      window.location.reload(); // Temporary solution - can be improved with better state management
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete comment");
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this post?")) {
+      return;
+    }
+
+    try {
+      await onDeletePost(post._id);
+      setShowMenu(false);
+    } catch {
+      // Error toast is already shown in the hook
+    }
+  };
+
+  const canDeleteComment = (comment) => {
+    // Post owner or comment author can delete
+    return user._id === post.user._id || user._id === comment.user._id;
   };
 
   return (
@@ -259,12 +285,23 @@ const Post = ({
                   />
                 </Link>
                 <div className="flex-1 bg-gray-50 rounded-lg p-2">
-                  <Link
-                    to={`/profile/${comment.user.username}`}
-                    className="font-semibold text-sm text-gray-900 hover:underline"
-                  >
-                    {comment.user.username}
-                  </Link>
+                  <div className="flex items-center justify-between">
+                    <Link
+                      to={`/profile/${comment.user.username}`}
+                      className="font-semibold text-sm text-gray-900 hover:underline"
+                    >
+                      {comment.user.username}
+                    </Link>
+                    {canDeleteComment(comment) && (
+                      <button
+                        onClick={() => handleDeleteComment(comment._id)}
+                        className="text-red-600 hover:text-red-700 text-xs font-medium"
+                        title="Delete comment"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-700">{comment.text}</p>
                   <button
                     onClick={() =>
