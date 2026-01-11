@@ -50,6 +50,17 @@ const api = {
     follow: (userId) => axios.put(`${API_PREFIX}/users/${userId}/follow`),
     unfollow: (userId) => axios.put(`${API_PREFIX}/users/${userId}/unfollow`),
   },
+
+  chats: {
+    getAll: () => axios.get(`${API_PREFIX}/chats`),
+    getById: (chatId) => axios.get(`${API_PREFIX}/chats/${chatId}`),
+    getOrCreateWithUser: (userId) =>
+      axios.post(`${API_PREFIX}/chats/user/${userId}`),
+    sendMessage: (chatId, formData) =>
+      axios.post(`${API_PREFIX}/chats/${chatId}/messages`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      }),
+  },
 };
 
 export default api;

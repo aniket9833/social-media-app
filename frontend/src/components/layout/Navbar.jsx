@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import SearchUsers from "./SearchUsers";
-import { BookmarkIcon } from "@heroicons/react/outline";
+import { ChatIcon } from "@heroicons/react/outline";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -29,11 +29,11 @@ const Navbar = () => {
                   Explore
                 </Link>
                 <Link
-                  to="/bookmarks"
+                  to="/messages"
                   className="text-gray-700 hover:text-blue-600 flex items-center space-x-1"
                 >
-                  <BookmarkIcon className="w-5 h-5" />
-                  <span>Bookmarks</span>
+                  <ChatIcon className="w-5 h-5" />
+                  <span>Messages</span>
                 </Link>
                 <Link
                   to={`/profile/${user.username}`}

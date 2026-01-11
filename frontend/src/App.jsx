@@ -7,6 +7,8 @@ import Feed from "./components/pages/Feed";
 import Explore from "./components/pages/Explore";
 import Profile from "./components/pages/Profile";
 import Bookmarks from "./components/pages/Bookmarks";
+import Messages from "./components/pages/Messages";
+import ChatDetail from "./components/pages/ChatDetail";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 
@@ -49,6 +51,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <Bookmarks />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/messages"
+              element={
+                <PrivateRoute>
+                  <Messages />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/messages/:chatId"
+              element={
+                <PrivateRoute>
+                  <ChatDetail />
                 </PrivateRoute>
               }
             />

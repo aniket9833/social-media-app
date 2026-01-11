@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import Post from "../posts/Post";
 import ProfileEdit from "../profile/ProfileEdit";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 import { usePostInteractions } from "../../hooks/usePostInteractions";
-import { BookmarkIcon } from "@heroicons/react/outline";
+import { BookmarkIcon, ChatIcon } from "@heroicons/react/outline";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -14,6 +14,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { username } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const {
     posts,
     setPosts,
@@ -70,6 +71,15 @@ const Profile = () => {
     }
   };
 
+  const handleSendMessage = async () => {
+    try {
+      const response = await api.chats.getOrCreateWithUser(profile._id);
+      navigate(`/messages/${response.data._id}`);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to start chat");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -110,16 +120,25 @@ const Profile = () => {
               </Link>
             </div>
           ) : (
-            <button
-              onClick={handleFollow}
-              className={`px-4 py-2 rounded-lg ${
-                profile.followers.includes(user._id)
-                  ? "bg-gray-200 text-gray-700"
-                  : "bg-blue-600 text-white"
-              }`}
-            >
-              {profile.followers.includes(user._id) ? "Unfollow" : "Follow"}
-            </button>
+            <>
+              <button
+                onClick={handleFollow}
+                className={`px-4 py-2 rounded-lg ${
+                  profile.followers.includes(user._id)
+                    ? "bg-gray-200 text-gray-700"
+                    : "bg-blue-600 text-white"
+                }`}
+              >
+                {profile.followers.includes(user._id) ? "Unfollow" : "Follow"}
+              </button>
+              <button
+                onClick={handleSendMessage}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
+              >
+                <ChatIcon className="w-5 h-5" />
+                <span>Message</span>
+              </button>
+            </>
           )}
         </div>
 

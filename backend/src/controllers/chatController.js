@@ -1,5 +1,10 @@
-import { validationResult } from 'express-validator';
-import { getUserChats, getChatById, getChatWithUser, sendMessage } from '../services/chatService.js';
+import { validationResult } from "express-validator";
+import {
+  getUserChats,
+  getChatById,
+  getChatWithUser,
+  sendMessage,
+} from "../services/chatService.js";
 
 // @desc    Get user's chats
 // @route   GET /api/chat
@@ -15,15 +20,25 @@ const getUserChatsController = async (req, res) => {
 };
 
 // @desc    Get single chat
-// @route   GET /api/chat/:chatId
+// @route   GET /api/chats/:chatId
 // @access  Private
 const getChatByIdController = async (req, res) => {
   try {
-    const result = await getChatById(req.params.chatId, req.user._id);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const result = await getChatById(
+      req.params.chatId,
+      req.user._id,
+      page,
+      limit
+    );
     res.json(result);
   } catch (error) {
     console.error(error);
-    if (error.message === 'Chat not found' || error.message === 'Access denied') {
+    if (
+      error.message === "Chat not found" ||
+      error.message === "Access denied"
+    ) {
       res.status(404).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message });
@@ -40,7 +55,7 @@ const getChatWithUserController = async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error(error);
-    if (error.message === 'User not found' || error.message === 'You need to be friends to start a chat') {
+    if (error.message === "User not found") {
       res.status(404).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message });
@@ -58,11 +73,19 @@ const sendMessageController = async (req, res) => {
   }
 
   try {
-    const result = await sendMessage(req.params.chatId, req.user._id, req.body, req.file);
+    const result = await sendMessage(
+      req.params.chatId,
+      req.user._id,
+      req.body,
+      req.file
+    );
     res.status(201).json(result);
   } catch (error) {
     console.error(error);
-    if (error.message === 'Chat not found' || error.message === 'Access denied') {
+    if (
+      error.message === "Chat not found" ||
+      error.message === "Access denied"
+    ) {
       res.status(404).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message });
@@ -70,4 +93,9 @@ const sendMessageController = async (req, res) => {
   }
 };
 
-export { getUserChatsController, getChatByIdController, getChatWithUserController, sendMessageController };
+export {
+  getUserChatsController,
+  getChatByIdController,
+  getChatWithUserController,
+  sendMessageController,
+};
