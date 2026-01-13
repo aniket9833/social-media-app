@@ -8,7 +8,6 @@ import Explore from "./components/pages/Explore";
 import Profile from "./components/pages/Profile";
 import Bookmarks from "./components/pages/Bookmarks";
 import Messages from "./components/pages/Messages";
-import ChatDetail from "./components/pages/ChatDetail";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 
@@ -54,6 +53,7 @@ function App() {
                 </PrivateRoute>
               }
             />
+            {/* Updated Messages Routes - both paths use the same component */}
             <Route
               path="/messages"
               element={
@@ -66,7 +66,7 @@ function App() {
               path="/messages/:chatId"
               element={
                 <PrivateRoute>
-                  <ChatDetail />
+                  <Messages />
                 </PrivateRoute>
               }
             />
