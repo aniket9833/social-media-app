@@ -29,8 +29,25 @@ const Post = ({
   const [editText, setEditText] = useState(post.text);
   const { user } = useAuth();
 
+  const isSameId = (a, b) => {
+    if (a == null || b == null) return false;
+    const aId = typeof a === "object" ? a._id : a;
+    const bId = typeof b === "object" ? b._id : b;
+    if (aId == null || bId == null) return false;
+    return aId.toString() === bId.toString();
+  };
+
+  const isLikedByMe =
+    Array.isArray(post.likes) &&
+    !!user?._id &&
+    post.likes.some((like) => {
+      const likeId = (like && typeof like === "object" ? like._id : like) ?? null;
+      return likeId != null && likeId.toString() === user._id.toString();
+    });
+
   const handleLikeClick = () => {
-    if (post.likes && post.likes.includes(user._id)) {
+    if (!user?._id) return;
+    if (isLikedByMe) {
       onUnlike(post._id);
     } else {
       onLike(post._id);
@@ -102,7 +119,7 @@ const Post = ({
 
   const canDeleteComment = (comment) => {
     // Post owner or comment author can delete
-    return user._id === post.user._id || user._id === comment.user._id;
+    return isSameId(user?._id, post?.user?._id) || isSameId(user?._id, comment?.user?._id);
   };
 
   return (
@@ -130,7 +147,7 @@ const Post = ({
         </div>
 
         {/* Ellipsis Menu - Only show for post owner */}
-        {user._id === post.user._id && (
+        {isSameId(user?._id, post?.user?._id) && (
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
@@ -225,7 +242,7 @@ const Post = ({
           <button
             onClick={handleLikeClick}
             className={`flex items-center space-x-1 ${
-              post.likes && post.likes.includes(user._id)
+              isLikedByMe
                 ? "text-red-500"
                 : "text-gray-500"
             }`}

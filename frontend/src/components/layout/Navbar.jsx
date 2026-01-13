@@ -11,7 +11,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16 gap-4">
           <Link to="/" className="text-xl font-bold text-blue-600">
-            Social Media
+            Pixera
           </Link>
 
           {user && <SearchUsers />}

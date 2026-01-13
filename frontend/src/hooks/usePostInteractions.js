@@ -6,39 +6,60 @@ export const usePostInteractions = (initialPosts = [], user) => {
   const [posts, setPosts] = useState(initialPosts);
   const [bookmarkedPostIds, setBookmarkedPostIds] = useState(new Set());
 
+  const getIdString = (value) => {
+    if (value == null) return "";
+    const id = typeof value === "object" ? value._id : value;
+    return id != null ? id.toString() : "";
+  };
+
   const handleLike = async (postId) => {
+    const normalizedPostId = getIdString(postId);
+    if (!normalizedPostId) {
+      toast.error("Invalid post id");
+      return;
+    }
     try {
-      await api.posts.like(postId);
-      setPosts(
-        posts.map((post) =>
-          post._id === postId
-            ? {
-                ...post,
-                likes: [...post.likes, user._id],
-              }
-            : post
-        )
+      await api.posts.like(normalizedPostId);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (getIdString(post._id) !== normalizedPostId) return post;
+          const likes = Array.isArray(post.likes) ? post.likes : [];
+          const alreadyLiked = likes.some(
+            (like) => getIdString(like) === getIdString(user?._id)
+          );
+          if (alreadyLiked) return post;
+          return {
+            ...post,
+            likes: [...likes, user._id],
+          };
+        })
       );
-    } catch {
-      toast.error("Failed to like post");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to like post");
     }
   };
 
   const handleUnlike = async (postId) => {
+    const normalizedPostId = getIdString(postId);
+    if (!normalizedPostId) {
+      toast.error("Invalid post id");
+      return;
+    }
     try {
-      await api.posts.unlike(postId);
-      setPosts(
-        posts.map((post) =>
-          post._id === postId
-            ? {
-                ...post,
-                likes: post.likes.filter((id) => id !== user._id),
-              }
-            : post
-        )
+      await api.posts.unlike(normalizedPostId);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (getIdString(post._id) !== normalizedPostId) return post;
+          const likes = Array.isArray(post.likes) ? post.likes : [];
+          const myId = getIdString(user?._id);
+          return {
+            ...post,
+            likes: likes.filter((like) => getIdString(like) !== myId),
+          };
+        })
       );
-    } catch {
-      toast.error("Failed to unlike post");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to unlike post");
     }
   };
 
@@ -46,15 +67,18 @@ export const usePostInteractions = (initialPosts = [], user) => {
     try {
       const response = await api.posts.comment(postId, text);
       const data = response.data;
-      setPosts(
-        posts.map((post) =>
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
           post._id === postId
-            ? { ...post, comments: [...post.comments, data] }
+            ? {
+                ...post,
+                comments: [...(post.comments || []), data],
+              }
             : post
         )
       );
-    } catch {
-      toast.error("Failed to add comment");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to add comment");
     }
   };
 

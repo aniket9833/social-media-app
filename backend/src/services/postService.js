@@ -247,7 +247,10 @@ const likePost = async (postId, userId) => {
   }
 
   // Check if post has already been liked
-  if (post.likes.includes(userId)) {
+  const alreadyLiked = post.likes.some(
+    (id) => id.toString() === userId.toString()
+  );
+  if (alreadyLiked) {
     throw new Error('Post already liked');
   }
 
@@ -267,7 +270,8 @@ const unlikePost = async (postId, userId) => {
   }
 
   // Check if post has been liked
-  if (!post.likes.includes(userId)) {
+  const hasLiked = post.likes.some((id) => id.toString() === userId.toString());
+  if (!hasLiked) {
     throw new Error('Post not liked');
   }
 
