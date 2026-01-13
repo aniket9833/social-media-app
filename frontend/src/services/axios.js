@@ -10,8 +10,7 @@ const instance = axios.create({
 // Add token to requests if it exists
 instance.interceptors.request.use((axiosConfig) => {
   try {
-    // Use sessionStorage to keep sessions isolated per tab
-    const userData = sessionStorage.getItem("user_auth");
+    const userData = localStorage.getItem("user_auth");
     if (userData) {
       const parsedData = JSON.parse(userData);
       if (parsedData.token) {
