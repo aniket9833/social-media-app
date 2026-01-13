@@ -41,7 +41,8 @@ const Post = ({
     Array.isArray(post.likes) &&
     !!user?._id &&
     post.likes.some((like) => {
-      const likeId = (like && typeof like === "object" ? like._id : like) ?? null;
+      const likeId =
+        (like && typeof like === "object" ? like._id : like) ?? null;
       return likeId != null && likeId.toString() === user._id.toString();
     });
 
@@ -119,7 +120,10 @@ const Post = ({
 
   const canDeleteComment = (comment) => {
     // Post owner or comment author can delete
-    return isSameId(user?._id, post?.user?._id) || isSameId(user?._id, comment?.user?._id);
+    return (
+      isSameId(user?._id, post?.user?._id) ||
+      isSameId(user?._id, comment?.user?._id)
+    );
   };
 
   return (
@@ -128,7 +132,10 @@ const Post = ({
         <div className="flex items-center">
           <Link to={`/profile/${post.user.username}`}>
             <img
-              src={post.user.profilePicture || "/default-avatar.png"}
+              src={
+                post.user.profilePicture ||
+                "https://img.icons8.com/ios-filled/50/737373/user-male-circle.png"
+              }
               alt={post.user.username}
               className="w-10 h-10 rounded-full mr-3"
             />
@@ -242,9 +249,7 @@ const Post = ({
           <button
             onClick={handleLikeClick}
             className={`flex items-center space-x-1 ${
-              isLikedByMe
-                ? "text-red-500"
-                : "text-gray-500"
+              isLikedByMe ? "text-red-500" : "text-gray-500"
             }`}
           >
             <HeartIcon className="w-5 h-5" />
@@ -296,7 +301,10 @@ const Post = ({
               <div className="flex items-start space-x-2">
                 <Link to={`/profile/${comment.user.username}`}>
                   <img
-                    src={comment.user.profilePicture || "/default-avatar.png"}
+                    src={
+                      comment.user.profilePicture ||
+                      "https://img.icons8.com/ios-filled/50/737373/user-male-circle.png"
+                    }
                     alt={comment.user.username}
                     className="w-8 h-8 rounded-full"
                   />
@@ -341,7 +349,8 @@ const Post = ({
                       <Link to={`/profile/${reply.user.username}`}>
                         <img
                           src={
-                            reply.user.profilePicture || "/default-avatar.png"
+                            reply.user.profilePicture ||
+                            "https://img.icons8.com/ios-filled/50/737373/user-male-circle.png"
                           }
                           alt={reply.user.username}
                           className="w-6 h-6 rounded-full"

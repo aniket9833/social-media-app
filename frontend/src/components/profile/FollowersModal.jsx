@@ -84,7 +84,10 @@ const FollowersModal = ({ title, users, onClose, onFollowChange }) => {
                   onClick={onClose}
                 >
                   <img
-                    src={u.profilePicture || "/default-avatar.png"}
+                    src={
+                      u.profilePicture ||
+                      "https://img.icons8.com/ios-filled/50/737373/user-male-circle.png"
+                    }
                     alt={u.username}
                     className="w-10 h-10 rounded-full"
                   />

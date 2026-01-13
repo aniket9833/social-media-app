@@ -108,10 +108,16 @@ const Messages = () => {
                   >
                     <div className="flex items-center gap-3">
                       <img
-                        src={other?.profilePicture || "/default-avatar.png"}
+                        src={
+                          other?.profilePicture ||
+                          "https://img.icons8.com/ios-filled/50/737373/user-male-circle.png"
+                        }
                         alt=""
                         className="w-12 h-12 rounded-full object-cover border"
-                        onError={(e) => (e.target.src = "/default-avatar.png")}
+                        onError={(e) =>
+                          (e.target.src =
+                            "https://img.icons8.com/ios-filled/50/737373/user-male-circle.png")
+                        }
                       />
                       <div className="flex-1 min-w-0">
                         <p

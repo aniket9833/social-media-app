@@ -97,7 +97,10 @@ const SearchUsers = () => {
                   className="flex items-center p-3 hover:bg-gray-50 transition"
                 >
                   <img
-                    src={user.profilePicture || "/default-avatar.png"}
+                    src={
+                      user.profilePicture ||
+                      "https://img.icons8.com/ios-filled/50/737373/user-male-circle.png"
+                    }
                     alt={user.username}
                     className="w-10 h-10 rounded-full mr-3"
                   />

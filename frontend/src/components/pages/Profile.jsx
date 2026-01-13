@@ -108,7 +108,10 @@ const Profile = () => {
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-6">
           <img
-            src={profile.profilePicture || "/default-avatar.png"}
+            src={
+              profile.profilePicture ||
+              "https://img.icons8.com/ios-filled/50/737373/user-male-circle.png"
+            }
             alt={profile.username}
             className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
           />
@@ -329,38 +332,39 @@ const Profile = () => {
       </div>
 
       {/* Post Modal */}
-      {selectedPostId && (() => {
-        const selectedPost = posts.find((p) => p._id === selectedPostId);
-        return selectedPost ? (
-          <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-            <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-lg overflow-hidden">
-              <button
-                onClick={closePostModal}
-                className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
-              >
-                <XIcon className="w-6 h-6 text-gray-700" />
-              </button>
+      {selectedPostId &&
+        (() => {
+          const selectedPost = posts.find((p) => p._id === selectedPostId);
+          return selectedPost ? (
+            <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+              <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-lg overflow-hidden">
+                <button
+                  onClick={closePostModal}
+                  className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
+                >
+                  <XIcon className="w-6 h-6 text-gray-700" />
+                </button>
 
-              <div className="overflow-y-auto max-h-[90vh] pt-12">
-                <Post
-                  post={selectedPost}
-                  onLike={handleLike}
-                  onUnlike={handleUnlike}
-                  onComment={handleComment}
-                  onReply={handleReply}
-                  onBookmark={handleBookmark}
-                  isPostBookmarked={isPostBookmarked}
-                  onEditPost={handleEditPost}
-                  onDeletePost={(postId) => {
-                    handleDeletePost(postId);
-                    closePostModal();
-                  }}
-                />
+                <div className="overflow-y-auto max-h-[90vh] pt-12">
+                  <Post
+                    post={selectedPost}
+                    onLike={handleLike}
+                    onUnlike={handleUnlike}
+                    onComment={handleComment}
+                    onReply={handleReply}
+                    onBookmark={handleBookmark}
+                    isPostBookmarked={isPostBookmarked}
+                    onEditPost={handleEditPost}
+                    onDeletePost={(postId) => {
+                      handleDeletePost(postId);
+                      closePostModal();
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ) : null;
-      })()}
+          ) : null;
+        })()}
     </div>
   );
 };
