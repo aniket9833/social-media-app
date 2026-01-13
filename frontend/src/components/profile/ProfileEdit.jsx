@@ -49,16 +49,15 @@ const ProfileEdit = ({ profile, onClose, onUpdate }) => {
 
     try {
       // Use the users API with put request to /profile endpoint
-      const response = await fetch(
-        `http://localhost:3000/api/v1/users/profile`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-          body: data,
-        }
-      );
+      const apiBaseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+      const response = await fetch(`${apiBaseUrl}/v1/users/profile`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: data,
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
